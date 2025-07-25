@@ -1,0 +1,942 @@
+{
+  "name": "AI Agent Telegram (Github Ready)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -4640,
+        -400
+      ],
+      "id": "3f911cc3-17d7-44f0-882a-18717a84abb7",
+      "name": "Telegram Trigger",
+      "webhookId": "e6be0f64-614b-4893-919a-d6cc29abebf5"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d97b38e4-24b8-418c-9075-8f133cc71fdc",
+                    "leftValue": "={{$json[\"message\"][\"voice\"] !== undefined}}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "266ce799-4167-4aa3-8110-f4306609bf19",
+                    "leftValue": "={{$json[\"message\"][\"text\"] !== undefined}}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0a2cf504-9b2a-4be3-a095-8b9fcbd7e57f",
+                    "leftValue": "={{ $json.message.photo[2].file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -4432,
+        -416
+      ],
+      "id": "518940cd-79bf-48a3-b80f-14b1f36c1057",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.transcript }}",
+        "options": {
+          "systemMessage": "=## Tools\nThink - Use this if you need help making a decision.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -2256,
+        -960
+      ],
+      "id": "f9d2869e-fa51-4bbd-88c8-bc90a3cb8f16",
+      "name": "AI Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2048,
+        -704
+      ],
+      "id": "4513d8e7-616d-44da-b7a0-62e0b06f4f16",
+      "name": "Simple Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "command": "=ffmpeg -i \"{{ $json.fileName }}\" -ar 16000 -ac 1 \"/files/voice_{{$json[\"result\"][\"file_path\"].split(\"/\").pop().split(\".\").first().concat('.mp3') }}\"\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -3520,
+        -576
+      ],
+      "id": "4da06dd7-6cc6-47d2-a632-7ed369263ec0",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/files/voice_{{$json[\"result\"][\"file_path\"].split(\"/\").pop()}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -3712,
+        -576
+      ],
+      "id": "9bb76f7d-a781-4c35-84ef-60d2b5f7974f",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "fileSelector": "=/files/voice_{{ $('Read/Write Files from Disk').item.json.result.file_path.split('/').last().split('.').first() }}.mp3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -3328,
+        -576
+      ],
+      "id": "5f2b8099-e3bf-4ed1-b6a4-3612296fda13",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {
+          "encoding": "utf8",
+          "keepSource": "binary"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -3136,
+        -576
+      ],
+      "id": "295d7bdc-524a-4d06-9bcc-27ac2008edad",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -1920,
+        -704
+      ],
+      "id": "76a41bec-6098-416c-84ef-df1dbffc927a",
+      "name": "Think",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "- Keep it short. But not too short. Output should be of MAX 2048 tokens.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -2256,
+        -368
+      ],
+      "id": "742a530a-505c-4850-9fe6-46a5c9fa630d",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -1936,
+        384
+      ],
+      "id": "c8504dec-1e43-452c-915b-f74cb4e00a5a",
+      "name": "Think Image"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "815b7df2-bc5f-4dfa-bd17-30dc63fa01b2",
+              "name": "message.text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3424,
+        -384
+      ],
+      "id": "3288b273-918d-4a90-8291-efadae93aa39",
+      "name": "Text Only",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Text+Image').item.json.message.caption }}",
+        "options": {
+          "systemMessage": "## Tools\nThink - Use this if you need help making a decision.",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -2256,
+        144
+      ],
+      "id": "df229f65-72e9-4d16-ab30-17b33df45a8d",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/bot<TELE_BOT_TOKEN>/{{$json[\"result\"][\"file_path\"]}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3920,
+        -576
+      ],
+      "id": "cc9e0bfa-af7f-413b-83dc-626a43d5b848",
+      "name": "Download Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.deepgram.com/v1/listen",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Accept\": \"application/json\",\n  \"Authorization\": \"Token <DEEPGRAM_TOKEN>\",\n  \"Content-Type\": \"audio/mpeg\"\n}\n",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2944,
+        -576
+      ],
+      "id": "2d6f7c8f-4e20-408f-b6a0-d1693c94ef35",
+      "name": "Deepgram Transcribe",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "content": "### Token Required\n- add your Deepgram token",
+        "height": 256,
+        "width": 192,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2992,
+        -688
+      ],
+      "typeVersion": 1,
+      "id": "f77a45c4-f0fd-4b5e-9d00-910b22976ff3",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### TOKEN REQUIRED\n- add your tele bot token",
+        "height": 256,
+        "width": 192,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3968,
+        -688
+      ],
+      "typeVersion": 1,
+      "id": "8231a9ce-87c8-4de3-a2f0-4cefcc550d48",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Custom File Path\n- change file path\nin your docker/local",
+        "height": 256,
+        "width": 192,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3760,
+        -688
+      ],
+      "typeVersion": 1,
+      "id": "430398d5-da17-4138-a923-3e6d521326c6",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### Custom File Path\n- change file path\nin your docker/local",
+        "height": 256,
+        "width": 192,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3376,
+        -688
+      ],
+      "typeVersion": 1,
+      "id": "cbfddc48-e7d1-4571-ac60-c8dd6c23ca69",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "### API REQUIRED\n- add your tele api",
+        "height": 256,
+        "width": 192,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4688,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "060cc3c1-47c2-490e-af52-f584a79841ce",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### API REQUIRED\n- add your tele api",
+        "height": 256,
+        "width": 192,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3488,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "fcf7cf5f-bca2-4f10-bc15-3c4bd420a21f",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "### API REQUIRED\n- add your tele api",
+        "height": 256,
+        "width": 192,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4176,
+        -688
+      ],
+      "typeVersion": 1,
+      "id": "ea2d3b44-4f47-4de0-bae9-4580d7ebdf25",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -2320,
+        -704
+      ],
+      "id": "b0b79b9e-4878-4852-8c60-e4f2a18eb797",
+      "name": "CHAT MODEL 1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -2320,
+        -160
+      ],
+      "id": "49e19fcf-d2f4-42d3-896d-b5a853aa5d83",
+      "name": "CHAT MODEL 2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -2320,
+        368
+      ],
+      "id": "c4730ef5-6ab7-41f5-8ff9-e39bdf137402",
+      "name": "IMAGE INPUT CAPABLE MODEL"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n### API REQUIRED\n- openrouter api required / custom api service",
+        "height": 272,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2384,
+        -736
+      ],
+      "typeVersion": 1,
+      "id": "a618e2a8-27f1-4f7a-8413-856840546728",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n### API REQUIRED\n- openrouter api required / custom api service",
+        "height": 272,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2384,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "6070fd9b-7e35-44cf-84f6-522498155e9e",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n### API REQUIRED\n- openrouter api required / custom api service",
+        "height": 272,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2384,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "79b034ad-5589-490e-84ae-61fa4dc363ad",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -4128,
+        -576
+      ],
+      "id": "b0cbdc0e-8098-413e-892e-9a6d2e2147cc",
+      "name": "Get voice file",
+      "webhookId": "f5c72a6c-7cad-40a0-8996-d689d86ad217"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.photo[2].file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -3440,
+        -80
+      ],
+      "id": "e51a9419-84d2-4fd9-85ae-fc2507709c0d",
+      "name": "Get image file",
+      "webhookId": "2f83b4c8-9273-48cb-a24f-056ee2070449"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "815b7df2-bc5f-4dfa-bd17-30dc63fa01b2",
+              "name": "message.caption",
+              "value": "={{ $json.message.caption }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3920,
+        -80
+      ],
+      "id": "5e020644-3cf3-492e-94f9-8ec017c44b3b",
+      "name": "Text+Image",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5bea39f3-6712-4654-8c60-0f3276c4b60b",
+              "name": "transcript",
+              "value": "={{ $json.results.channels[0].alternatives[0].transcript }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2752,
+        -576
+      ],
+      "id": "05e7e43b-4a86-4367-854f-7a2165828b90",
+      "name": "Voice Only"
+    },
+    {
+      "parameters": {
+        "content": "### API REQUIRED\n- add your tele api",
+        "height": 256,
+        "width": 192,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        -464
+      ],
+      "typeVersion": 1,
+      "id": "34871de8-cb6f-42ab-95da-443cdf464b86",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output.replace(/<think>[\\s\\S]*?<\\/think>/g, '').trim() }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1552,
+        -368
+      ],
+      "id": "04fce979-eda4-43c7-9ec7-9f06bf586459",
+      "name": "Output",
+      "webhookId": "155bf13b-440b-4bd5-986f-4f8280c33e28",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "width": 800,
+        "height": 800,
+        "resizeOption": "onlyIfLarger",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        -2960,
+        -80
+      ],
+      "id": "3ad53d55-e68e-480a-9f30-cfd4f14790e8",
+      "name": "Resize"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get voice file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Text Only",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Text+Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Deepgram Transcribe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Only": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Request": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deepgram Transcribe": {
+      "main": [
+        [
+          {
+            "node": "Voice Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CHAT MODEL 1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CHAT MODEL 2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IMAGE INPUT CAPABLE MODEL": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get voice file": {
+      "main": [
+        [
+          {
+            "node": "Download Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get image file": {
+      "main": [
+        [
+          {
+            "node": "Resize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text+Image": {
+      "main": [
+        [
+          {
+            "node": "Get image file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice Only": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resize": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cae1a718-19af-463f-9bfc-f7e313c3ce70",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "41208d6dd1b76a35fd29f1077b663584e4963d1bd6cb028210a1faf0e5097b42"
+  },
+  "id": "BpnN3EGy8H5jvJpu",
+  "tags": []
+}
