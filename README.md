@@ -1,4 +1,4 @@
-# AI Agent Telegram Bot Workflow
+# AI Agent Telegram - Workflow
 
 An n8n workflow that turns a Telegram bot into a multi-modal AI agent:
 - **Text** messages
