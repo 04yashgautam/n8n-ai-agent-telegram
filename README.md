@@ -1,5 +1,8 @@
 # AI Agent Telegram - Workflow
 
+![n8n](https://img.shields.io/badge/n8n-Automation-orange?logo=n8n&logoColor=white)
+![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
+
 An n8n workflow that turns a Telegram bot into a multi-modal AI agent:
 - **Text** messages
 - **Voice** notes (via Deepgram transcription + ffmpeg)
