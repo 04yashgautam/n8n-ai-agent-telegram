@@ -9,6 +9,9 @@ Powered by LangChain agents and OpenRouter/OpenAI-compatible models.
 
 ---
 
+<img width="1200" alt="n8n-workflow" src="https://github.com/user-attachments/assets/f0e27445-3b88-4487-a759-4822ea373b37" />
+
+
 ## Table of Contents
 
 1. [Features](#features)
